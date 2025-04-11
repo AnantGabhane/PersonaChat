@@ -1,6 +1,6 @@
-'use client'
+'use client';
 
-import { motion } from 'framer-motion'
+import React from 'react';
 import { HeroSection } from './HeroSection'
 import { ChatDemo } from '@/app/components/ChatDemo'
 import { Features } from '@/app/components/Features'
