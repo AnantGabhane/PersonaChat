@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  .prose {
+    @apply text-white;
+  }
+  .prose strong {
+    @apply text-white;
+  }
+  .prose ul {
+    @apply text-white;
+  }
+  .prose li {
+    @apply text-white;
+  }
+}
