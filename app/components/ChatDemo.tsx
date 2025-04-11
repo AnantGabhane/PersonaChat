@@ -1,9 +1,9 @@
-'use client'
+'use client';
 
+import React from 'react';
 import { useState, useRef } from 'react'
-import { motion } from 'framer-motion'
-import { SendIcon, MicIcon, Settings } from 'lucide-react'
 import Image from 'next/image'
+import { Settings, Send as SendIcon } from 'lucide-react'
 
 interface Message {
   text: string;
@@ -80,7 +80,7 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
           // Handle emojis - add spacing
           .replace(/(\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]|\ud83d[\ude80-\udeff])/g, ' $1 ')
           // Handle bold text
-          .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+          .replace(/[*](.*?)[*]/g, '<strong>$1</strong>') // Remove unnecessary escape
           // Handle bullet points
           .replace(/^[•\*]\s+(.+)/gm, '<li>$1</li>')
           // Wrap bullet points in ul
@@ -96,7 +96,7 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
   const getBgColor = () => {
     if (isUser) return 'bg-gray-700/50';
     if (persona === 'piyush') return 'bg-[#0066FF]/50 backdrop-blur-sm';
-    return `bg-${color}-600/50 backdrop-blur-sm`;
+    return 'bg-purple-600/50 backdrop-blur-sm'; // Default background for Hitesh
   };
 
   return (
@@ -123,17 +123,22 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
   )
 }
 
-function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: {
+function SettingsModal({ isOpen, settings, onSettingsChange, onClose }: {
   isOpen: boolean;
-  onClose: () => void;
   settings: AISettings;
   onSettingsChange: (settings: AISettings) => void;
+  onClose: () => void;
 }) {
   if (!isOpen) return null;
 
   return (
     <div className="absolute bottom-16 right-0 w-72 bg-gray-800 rounded-2xl p-4 border border-gray-700/30 shadow-lg">
-      <h3 className="text-lg font-semibold mb-4">AI Settings</h3>
+      <div className="flex justify-between items-center mb-4">
+        <h3 className="text-lg font-semibold">AI Settings</h3>
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-300">
+          <Settings size={18} />
+        </button>
+      </div>
       
       <div className="mb-4">
         <label className="block text-sm text-gray-300 mb-2">
@@ -366,9 +371,9 @@ export function ChatDemo() {
             <div data-settings-modal>
               <SettingsModal
                 isOpen={isSettingsOpen}
-                onClose={() => setIsSettingsOpen(false)}
                 settings={settings}
                 onSettingsChange={setSettings}
+                onClose={() => setIsSettingsOpen(false)}
               />
             </div>
           </div>
