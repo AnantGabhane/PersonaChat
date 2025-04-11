@@ -2,13 +2,18 @@
 
 import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
-import { SendIcon, MicIcon } from 'lucide-react'
+import { SendIcon, MicIcon, Settings } from 'lucide-react'
 import Image from 'next/image'
 
 interface Message {
   text: string;
   isUser: boolean;
   persona?: string;
+}
+
+interface AISettings {
+  temperature: number;
+  tone: 'default' | 'funny' | 'advice' | 'educational';
 }
 
 function PersonaButton({ name, active, onClick, color, imageUrl, title, description, skills }: {
@@ -21,11 +26,14 @@ function PersonaButton({ name, active, onClick, color, imageUrl, title, descript
   description: string;
   skills: string[];
 }) {
+  const getSkillBackground = () => {
+    if (name === 'piyush') return 'bg-[#0066FF]/10 text-[#0066FF]';
+    return 'bg-purple-500/10 text-purple-400';
+  };
+
   return (
     <div 
-      className={`flex items-center p-3 rounded-lg cursor-pointer transition-all w-1/2 ${
-        active ? `bg-gray-800/50` : 'hover:bg-gray-800/30'
-      }`}
+      className="flex items-center p-3 rounded-lg cursor-pointer transition-all w-1/2 bg-gray-900/50 backdrop-blur-sm hover:bg-gray-800/50"
       onClick={onClick}
     >
       <div className={`w-12 h-12 rounded-full overflow-hidden relative ${
@@ -38,15 +46,14 @@ function PersonaButton({ name, active, onClick, color, imageUrl, title, descript
           className="object-cover"
         />
       </div>
-      
-      <div className="ml-4 flex-1">
-        <h3 className="text-lg font-semibold">{title}</h3>
-        <p className="text-sm text-gray-400 mb-2">{description}</p>
-        <div className="flex flex-wrap gap-2">
+      <div className="ml-3 flex-1">
+        <h3 className="font-semibold text-white">{title}</h3>
+        <p className="text-sm text-gray-400">{description}</p>
+        <div className="flex flex-wrap gap-1 mt-2">
           {skills.map((skill, index) => (
             <span
               key={index}
-              className={`text-xs px-2 py-1 rounded-full bg-${color}-600/30 text-${color}-300`}
+              className={`text-xs px-2 py-1 rounded-full ${getSkillBackground()}`}
             >
               {skill}
             </span>
@@ -54,7 +61,7 @@ function PersonaButton({ name, active, onClick, color, imageUrl, title, descript
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 function ChatMessage({ persona, message, isUser, color, imageUrl }: {
@@ -64,24 +71,32 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
   color?: string;
   imageUrl?: string;
 }) {
-  // Function to format the message with proper line breaks
   const formatMessage = (text: string) => {
     return text
-      .split('**')
-      .map((part, index) => {
-        // Bold text handling
-        if (index % 2 === 1) {
-          return `<strong>${part}</strong>`;
-        }
-        
-        // Handle bullet points and line breaks
-        return part
-          .replace(/\* /g, '\n• ') // Convert * to bullet points with line break
-          .replace(/\n\n/g, '\n') // Remove double line breaks
-          .replace(/([!?।]) /g, '$1\n\n') // Add line break after sentences
-          .trim();
+      .split(/\n\s*\n/) // Split on multiple newlines
+      .map(paragraph => {
+        return paragraph
+          .trim()
+          // Handle emojis - add spacing
+          .replace(/(\ud83c[\udf00-\udfff]|\ud83d[\udc00-\ude4f]|\ud83d[\ude80-\udeff])/g, ' $1 ')
+          // Handle bold text
+          .replace(/\*(.*?)\*/g, '<strong>$1</strong>')
+          // Handle bullet points
+          .replace(/^[•\*]\s+(.+)/gm, '<li>$1</li>')
+          // Wrap bullet points in ul
+          .replace(/((?:<li>.*<\/li>\n*)+)/g, '<ul class="list-disc ml-4 my-2">$1</ul>')
+          // Add paragraph spacing
+          .replace(/([!?।])\s+/g, '$1</p><p class="mt-3">')
       })
+      .filter(para => para.trim() !== '') // Remove empty paragraphs
+      .map(para => `<p class="my-2">${para}</p>`)
       .join('');
+  };
+
+  const getBgColor = () => {
+    if (isUser) return 'bg-gray-700/50';
+    if (persona === 'piyush') return 'bg-[#0066FF]/50 backdrop-blur-sm';
+    return `bg-${color}-600/50 backdrop-blur-sm`;
   };
 
   return (
@@ -97,19 +112,75 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
         </div>
       )}
       <div
-        className={`${
-          isUser
-            ? 'bg-gray-700/50'
-            : `bg-${color}-600/50 backdrop-blur-sm`
-        } rounded-2xl p-3 max-w-[80%]`}
+        className={`${getBgColor()} rounded-2xl p-4 max-w-[80%]`}
       >
-        <p 
-          className="text-sm whitespace-pre-wrap"
+        <div 
+          className="text-sm whitespace-pre-wrap prose prose-invert"
           dangerouslySetInnerHTML={{ __html: formatMessage(message) }}
         />
       </div>
     </div>
   )
+}
+
+function SettingsModal({ isOpen, onClose, settings, onSettingsChange }: {
+  isOpen: boolean;
+  onClose: () => void;
+  settings: AISettings;
+  onSettingsChange: (settings: AISettings) => void;
+}) {
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute bottom-16 right-0 w-72 bg-gray-800 rounded-2xl p-4 border border-gray-700/30 shadow-lg">
+      <h3 className="text-lg font-semibold mb-4">AI Settings</h3>
+      
+      <div className="mb-4">
+        <label className="block text-sm text-gray-300 mb-2">
+          Temperature: {settings.temperature}
+        </label>
+        <input
+          type="range"
+          min="0"
+          max="2"
+          step="0.1"
+          value={settings.temperature}
+          onChange={(e) => onSettingsChange({
+            ...settings,
+            temperature: parseFloat(e.target.value)
+          })}
+          className="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-600"
+        />
+        <p className="text-xs text-gray-400 mt-1">
+          Lower for consistent, higher for creative responses
+        </p>
+      </div>
+
+      <div>
+        <label className="block text-sm text-gray-300 mb-2">
+          Personality Tone
+        </label>
+        <div className="grid grid-cols-2 gap-2">
+          {['default', 'funny', 'advice', 'educational'].map((tone) => (
+            <button
+              key={tone}
+              onClick={() => onSettingsChange({
+                ...settings,
+                tone: tone as AISettings['tone']
+              })}
+              className={`px-3 py-2 rounded-xl text-sm transition-colors ${
+                settings.tone === tone
+                  ? 'bg-purple-600 border border-purple-500'
+                  : 'bg-gray-700 border border-gray-700 hover:border-purple-500/50'
+              }`}
+            >
+              {tone.charAt(0).toUpperCase() + tone.slice(1)}
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 export function ChatDemo() {
@@ -127,6 +198,11 @@ export function ChatDemo() {
   }])
   const [isLoading, setIsLoading] = useState(false)
   const inputRef = useRef<HTMLInputElement>(null)
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false)
+  const [settings, setSettings] = useState<AISettings>({
+    temperature: 0.7,
+    tone: 'default'
+  })
 
   const personas = {
     hitesh: {
@@ -159,7 +235,6 @@ export function ChatDemo() {
     const message = inputRef.current?.value.trim()
     if (!message || isLoading) return
 
-    // Add user message to the current persona's chat
     setCurrentMessages(prev => [...prev, { text: message, isUser: true }])
     const inputElement = inputRef.current
     if (inputElement) {
@@ -171,7 +246,11 @@ export function ChatDemo() {
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ message, persona: activePersona }),
+        body: JSON.stringify({ 
+          message, 
+          persona: activePersona,
+          settings: settings // Add settings to the request
+        }),
       })
 
       const data = await response.json()
@@ -202,11 +281,27 @@ export function ChatDemo() {
     }
   }
 
+  // Add click handler for the chat container
+  const handleContainerClick = (e: React.MouseEvent) => {
+    // Check if the click is outside the settings button and settings modal
+    const settingsButton = document.querySelector('[data-settings-button]');
+    const settingsModal = document.querySelector('[data-settings-modal]');
+    
+    if (settingsButton && settingsModal) {
+      if (!settingsButton.contains(e.target as Node) && !settingsModal.contains(e.target as Node)) {
+        setIsSettingsOpen(false);
+      }
+    }
+  };
+
   return (
     <section className="py-2" id="chat-section">
       <div className="max-w-4xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-center mb-4">Experience the Conversation</h2>
-        <div className="bg-gray-800/30 backdrop-blur-sm rounded-2xl p-6 border border-gray-700/30">
+        <div 
+          className="bg-gray-800 rounded-2xl p-6 border border-gray-700/30"
+          onClick={handleContainerClick}
+        >
           <div className="flex flex-row gap-4 mb-6">
             {Object.entries(personas).map(([key, persona]) => (
               <PersonaButton
@@ -229,8 +324,8 @@ export function ChatDemo() {
                 persona={msg.persona}
                 message={msg.text}
                 isUser={msg.isUser}
-                color={msg.persona === 'hitesh' ? 'purple' : 'blue'}
-                imageUrl={msg.persona === 'hitesh' ? '/hitesh.jpeg' : '/piyush.jpg'}
+                color={personas[msg.persona as keyof typeof personas]?.color || 'gray'}
+                imageUrl={personas[msg.persona as keyof typeof personas]?.imageUrl}
               />
             ))}
             {isLoading && (
@@ -241,7 +336,7 @@ export function ChatDemo() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-2 bg-gray-700/30 rounded-xl p-3">
+          <div className="flex items-center gap-2 bg-gray-700 rounded-xl p-3 relative">
             <input
               ref={inputRef}
               type="text"
@@ -251,12 +346,31 @@ export function ChatDemo() {
               disabled={isLoading}
             />
             <button 
+              data-settings-button
+              className="p-2 rounded-full hover:bg-gray-600 transition-colors relative"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsSettingsOpen(!isSettingsOpen);
+              }}
+            >
+              <Settings size={18} className="text-gray-400 hover:text-gray-300" />
+            </button>
+            <button 
               className="p-2 rounded-full bg-purple-600 hover:bg-purple-700 transition-colors disabled:opacity-50"
               onClick={handleSend}
               disabled={isLoading}
             >
               <SendIcon size={18} />
             </button>
+            
+            <div data-settings-modal>
+              <SettingsModal
+                isOpen={isSettingsOpen}
+                onClose={() => setIsSettingsOpen(false)}
+                settings={settings}
+                onSettingsChange={setSettings}
+              />
+            </div>
           </div>
         </div>
       </div>
