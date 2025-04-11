@@ -25,25 +25,41 @@ const PERSONA_PROMPTS = {
   Keep responses professional yet approachable, like your YouTube tutorials.`
 };
 
+const TONE_MODIFIERS = {
+  default: "",
+  funny: "Be more humorous and entertaining in your responses, while maintaining educational value.",
+  advice: "Focus on providing practical advice and recommendations in your responses.",
+  educational: "Be more detailed and thorough in your explanations, like giving a lecture."
+};
+
 export async function POST(req: Request) {
   try {
-    const { message, persona } = await req.json();
-    const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    const { message, persona, settings } = await req.json();
+    
+    // Set default values if settings is undefined
+    const temperature = settings?.temperature ?? 0.7;
+    const tone = settings?.tone ?? 'default';
+
+    const model = genAI.getGenerativeModel({ 
+      model: "gemini-1.5-flash",
+      generationConfig: {
+        temperature: temperature,
+        maxOutputTokens: 500,
+      }
+    });
 
     const chat = model.startChat({
       history: [],
-      generationConfig: {
-        maxOutputTokens: 500,
-      },
-      safetySettings: [
-        {
-          category: "HARASSMENT",
-          threshold: "BLOCK_MEDIUM",
-        },
-      ],
     });
 
-    const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}\n\nUser: ${message}\n\nResponse:`;
+    const toneModifier = TONE_MODIFIERS[tone as keyof typeof TONE_MODIFIERS];
+    const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}
+    ${toneModifier}
+    
+    User: ${message}
+    
+    Response:`;
+
     const result = await chat.sendMessage(prompt);
     const response = await result.response;
     const text = response.text();
