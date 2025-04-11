@@ -1,6 +1,6 @@
 'use client'
 
-import { Github, Twitter, Youtube } from 'lucide-react'
+import { Github, Linkedin, X } from 'lucide-react'
 
 export function Footer() {
   return (
@@ -12,14 +12,29 @@ export function Footer() {
             <p className="text-gray-400 text-sm">Learn from the experts, virtually</p>
           </div>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Twitter size={20} />
+            <a 
+              href="https://x.com/AnantGabhane" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={20} />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
+            <a 
+              href="https://github.com/AnantGabhane" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-gray-400 hover:text-white transition-colors"
+            >
               <Github size={20} />
             </a>
-            <a href="#" className="text-gray-400 hover:text-white transition-colors">
-              <Youtube size={20} />
+            <a 
+              href="https://www.linkedin.com/in/anantgabhane/" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="text-gray-400 hover:text-white transition-colors"
+            >
+              <Linkedin size={20} />
             </a>
           </div>
         </div>
