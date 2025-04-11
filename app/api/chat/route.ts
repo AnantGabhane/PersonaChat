@@ -36,8 +36,8 @@ export async function POST(req: Request) {
   try {
     const { message, persona, settings } = await req.json();
     
-    // Set default values if settings is undefined
-    const temperature = settings?.temperature ?? 0.7;
+    // Update default temperature to 0
+    const temperature = settings?.temperature ?? 0;  // Changed from 0.7 to 0
     const tone = settings?.tone ?? 'default';
 
     const model = genAI.getGenerativeModel({ 

@@ -200,7 +200,7 @@ export function ChatDemo() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [isSettingsOpen, setIsSettingsOpen] = useState(false)
   const [settings, setSettings] = useState<AISettings>({
-    temperature: 0.7,
+    temperature: 0,  // Changed from 0.7 to 0
     tone: 'default'
   })
 
