@@ -1,7 +1,13 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 
-const GEMINI_API_KEY = process.env.GEMINI_API_KEY || '';
+// Add validation for API key
+const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+if (!GEMINI_API_KEY) {
+  throw new Error('GEMINI_API_KEY is not configured in environment variables');
+}
+
+// Initialize the API client
 const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
 
 const PERSONA_PROMPTS = {
@@ -35,41 +41,73 @@ const TONE_MODIFIERS = {
 
 export async function POST(req: Request) {
   try {
+    // Validate API key at runtime
+    if (!GEMINI_API_KEY) {
+      console.error('Missing Gemini API key');
+      return NextResponse.json(
+        { error: 'API configuration error - Missing API key' },
+        { status: 500 }
+      );
+    }
+
     const { message, persona, settings } = await req.json();
     
-    // Update default temperature to 0
-    const temperature = settings?.temperature ?? 0;  // Changed from 0.7 to 0
-    const tone = settings?.tone ?? 'default';
+    if (!message || !persona) {
+      return NextResponse.json(
+        { error: 'Message and persona are required' },
+        { status: 400 }
+      );
+    }
 
-    const model = genAI.getGenerativeModel({ 
-      model: "gemini-1.5-flash",
-      generationConfig: {
-        temperature: temperature,
-        maxOutputTokens: 500,
+    // Test API connection before chat
+    try {
+      const model = genAI.getGenerativeModel({ 
+        model: "gemini-1.5-flash",
+        generationConfig: {
+          temperature: settings?.temperature ?? 0,
+          maxOutputTokens: 500,
+        }
+      });
+
+      const chat = model.startChat({
+        history: [],
+      });
+
+      const toneModifier = TONE_MODIFIERS[settings?.tone as keyof typeof TONE_MODIFIERS] ?? TONE_MODIFIERS.default;
+      const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}
+      ${toneModifier}
+      
+      User: ${message}
+      
+      Response:`;
+
+      const result = await chat.sendMessage(prompt);
+      const response = await result.response;
+      const text = response.text();
+
+      if (!text) {
+        throw new Error('Empty response from AI');
       }
-    });
 
-    const chat = model.startChat({
-      history: [],
-    });
-
-    const toneModifier = TONE_MODIFIERS[tone as keyof typeof TONE_MODIFIERS];
-    const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}
-    ${toneModifier}
-    
-    User: ${message}
-    
-    Response:`;
-
-    const result = await chat.sendMessage(prompt);
-    const response = await result.response;
-    const text = response.text();
-
-    return NextResponse.json({ message: text });
+      return NextResponse.json({ message: text });
+    } catch (apiError) {
+      console.error('Gemini API Error:', apiError);
+      return NextResponse.json(
+        { 
+          error: 'Failed to communicate with AI service. Please check API configuration.',
+          details: apiError instanceof Error ? apiError.message : 'Unknown API error',
+          key: process.env.GEMINI_API_KEY ? 'Key exists' : 'No key found'
+        },
+        { status: 503 }
+      );
+    }
   } catch (error) {
     console.error('Chat API Error:', error);
     return NextResponse.json(
-      { error: 'Failed to process chat request' },
+      { 
+        error: 'Failed to process chat request',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      },
       { status: 500 }
     );
   }
