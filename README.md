@@ -3,7 +3,7 @@
 A Next.js application that lets you chat with AI-powered personas of popular tech educators. Experience interactive learning through conversations with Hitesh Choudhary and Piyush Garg.
 
 ## Live Demo
-[Try HPersona](your-vercel-deployment-url)
+https://ai-persona-mocha.vercel.app/
 
 ## Screenshots :
 - ![alt text](image.png)
