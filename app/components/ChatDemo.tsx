@@ -64,11 +64,10 @@ function PersonaButton({ name, active, onClick, color, imageUrl, title, descript
   );
 }
 
-function ChatMessage({ persona, message, isUser, color, imageUrl }: {
+function ChatMessage({ persona, message, isUser, imageUrl }: {
   persona?: string;
   message: string;
   isUser?: boolean;
-  color?: string;
   imageUrl?: string;
 }) {
   const formatMessage = (text: string) => {
@@ -82,7 +81,7 @@ function ChatMessage({ persona, message, isUser, color, imageUrl }: {
           // Handle bold text
           .replace(/[*](.*?)[*]/g, '<strong>$1</strong>') // Remove unnecessary escape
           // Handle bullet points
-          .replace(/^[•\*]\s+(.+)/gm, '<li>$1</li>')
+          .replace(/^[•*]\s+(.+)/gm, '<li>$1</li>')
           // Wrap bullet points in ul
           .replace(/((?:<li>.*<\/li>\n*)+)/g, '<ul class="list-disc ml-4 my-2">$1</ul>')
           // Add paragraph spacing
@@ -135,7 +134,7 @@ function SettingsModal({ isOpen, settings, onSettingsChange, onClose }: {
     <div className="absolute bottom-16 right-0 w-72 bg-gray-800 rounded-2xl p-4 border border-gray-700/30 shadow-lg">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-lg font-semibold">AI Settings</h3>
-        <button onClick={onClose} className="text-gray-400 hover:text-gray-300">
+        <button onClick={onClose} className="text-gray-400 hover:text-gray-300" title="Close settings">
           <Settings size={18} />
         </button>
       </div>
@@ -150,6 +149,8 @@ function SettingsModal({ isOpen, settings, onSettingsChange, onClose }: {
           max="2"
           step="0.1"
           value={settings.temperature}
+          title="Adjust temperature setting"
+          aria-label="Temperature slider"
           onChange={(e) => onSettingsChange({
             ...settings,
             temperature: parseFloat(e.target.value)
@@ -260,7 +261,13 @@ export function ChatDemo() {
 
       const data = await response.json()
       
-      if (data.error) throw new Error(data.error)
+      if (!response.ok || data.error) {
+        throw new Error(
+          data.userMessage ??
+          data.error ??
+          'Sorry, something went wrong. Please try again.'
+        )
+      }
 
       setCurrentMessages(prev => [...prev, {
         text: data.message,
@@ -269,8 +276,13 @@ export function ChatDemo() {
       }])
     } catch (error) {
       console.error('Chat error:', error)
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Sorry, something went wrong. Please try again."
+
       setCurrentMessages(prev => [...prev, {
-        text: "Sorry, something went wrong. Please try again.",
+        text: errorMessage,
         isUser: false,
         persona: activePersona
       }])
@@ -329,7 +341,6 @@ export function ChatDemo() {
                 persona={msg.persona}
                 message={msg.text}
                 isUser={msg.isUser}
-                color={personas[msg.persona as keyof typeof personas]?.color || 'gray'}
                 imageUrl={personas[msg.persona as keyof typeof personas]?.imageUrl}
               />
             ))}
@@ -352,6 +363,7 @@ export function ChatDemo() {
             />
             <button 
               data-settings-button
+              title="Settings"
               className="p-2 rounded-full hover:bg-gray-600 transition-colors relative"
               onClick={(e) => {
                 e.stopPropagation();
@@ -361,6 +373,7 @@ export function ChatDemo() {
               <Settings size={18} className="text-gray-400 hover:text-gray-300" />
             </button>
             <button 
+              title="Send message"
               className="p-2 rounded-full bg-purple-600 hover:bg-purple-700 transition-colors disabled:opacity-50"
               onClick={handleSend}
               disabled={isLoading}

@@ -1,14 +1,12 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { NextResponse } from 'next/server';
 
-// Add validation for API key
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-if (!GEMINI_API_KEY) {
-  throw new Error('GEMINI_API_KEY is not configured in environment variables');
-}
-
-// Initialize the API client
-const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+const DEFAULT_GEMINI_MODEL = process.env.GEMINI_MODEL ?? 'gemini-2.0-flash';
+const FALLBACK_GEMINI_MODELS = Array.from(
+  new Set([DEFAULT_GEMINI_MODEL, 'gemini-2.0-flash', 'gemini-2.5-flash'])
+);
+const genAI = GEMINI_API_KEY ? new GoogleGenerativeAI(GEMINI_API_KEY) : null;
 
 const PERSONA_PROMPTS = {
   hitesh: `You are Hitesh Choudhary, a passionate coding teacher with over 10 years of experience. 
@@ -39,10 +37,131 @@ const TONE_MODIFIERS = {
   educational: "Be more detailed and thorough in your explanations, like giving a lecture."
 };
 
+type GeminiErrorDetail = {
+  '@type'?: string;
+  links?: Array<{
+    description?: string;
+    url?: string;
+  }>;
+  retryDelay?: string;
+  violations?: Array<{
+    quotaMetric?: string;
+    quotaId?: string;
+    quotaDimensions?: {
+      location?: string;
+      model?: string;
+    };
+  }>;
+};
+
+type GeminiApiError = Error & {
+  status?: number;
+  statusText?: string;
+  errorDetails?: GeminiErrorDetail[];
+};
+
+function isModelResolutionError(error: unknown) {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const apiError = error as Error & { status?: number };
+  const message = error.message.toLowerCase();
+
+  return (
+    apiError.status === 404 ||
+    message.includes('is not found') ||
+    message.includes('not supported for generatecontent')
+  );
+}
+
+function isQuotaExceededError(error: unknown): error is GeminiApiError {
+  if (!(error instanceof Error)) {
+    return false;
+  }
+
+  const apiError = error as GeminiApiError;
+  const message = error.message.toLowerCase();
+
+  return (
+    apiError.status === 429 ||
+    message.includes('quota exceeded') ||
+    message.includes('too many requests')
+  );
+}
+
+function parseRetryDelaySeconds(error: GeminiApiError) {
+  const retryInfo = error.errorDetails?.find(
+    (detail) => detail['@type'] === 'type.googleapis.com/google.rpc.RetryInfo'
+  );
+
+  if (retryInfo?.retryDelay) {
+    const seconds = Number.parseFloat(retryInfo.retryDelay.replace(/s$/i, ''));
+    if (Number.isFinite(seconds)) {
+      return Math.max(1, Math.ceil(seconds));
+    }
+  }
+
+  const messageMatch = error.message.match(/retry in\s+([0-9.]+)s/i);
+  if (!messageMatch) {
+    return null;
+  }
+
+  const seconds = Number.parseFloat(messageMatch[1]);
+  return Number.isFinite(seconds) ? Math.max(1, Math.ceil(seconds)) : null;
+}
+
+function getQuotaHelpUrl(error: GeminiApiError) {
+  return error.errorDetails
+    ?.flatMap((detail) => detail.links ?? [])
+    .find((link) => link.url)?.url;
+}
+
+function buildQuotaExceededResponse(error: GeminiApiError) {
+  const retryAfterSeconds = parseRetryDelaySeconds(error);
+  const quotaViolations =
+    error.errorDetails
+      ?.flatMap((detail) => detail.violations ?? [])
+      .filter(Boolean) ?? [];
+  const affectedModels = Array.from(
+    new Set(
+      quotaViolations
+        .map((violation) => violation.quotaDimensions?.model)
+        .filter((model): model is string => Boolean(model))
+    )
+  );
+  const isFreeTierBlocked =
+    quotaViolations.some((violation) => violation.quotaId?.includes('FreeTier')) ||
+    error.message.includes('limit: 0');
+  const helpUrl =
+    getQuotaHelpUrl(error) ?? 'https://ai.google.dev/gemini-api/docs/rate-limits';
+  const modelLabel = affectedModels[0] ?? DEFAULT_GEMINI_MODEL;
+  const retryLabel = retryAfterSeconds ? ` Retry after about ${retryAfterSeconds} seconds.` : '';
+  const userMessage = isFreeTierBlocked
+    ? `Gemini quota is unavailable for the current API project on ${modelLabel}.${retryLabel} If this keeps happening, enable billing in Google AI Studio or switch to an API key from a project with paid quota.`
+    : `Gemini rate limit reached for ${modelLabel}.${retryLabel}`;
+
+  return NextResponse.json(
+    {
+      error: 'Gemini quota exceeded',
+      code: 'quota_exceeded',
+      details: error.message,
+      retryAfterSeconds,
+      model: modelLabel,
+      helpUrl,
+      userMessage,
+    },
+    {
+      status: 429,
+      headers: retryAfterSeconds ? { 'Retry-After': String(retryAfterSeconds) } : undefined,
+    }
+  );
+}
+
 export async function POST(req: Request) {
   try {
     // Validate API key at runtime
-    if (!GEMINI_API_KEY) {
+    if (!GEMINI_API_KEY || !genAI) {
       console.error('Missing Gemini API key');
       return NextResponse.json(
         { error: 'API configuration error - Missing API key' },
@@ -59,39 +178,55 @@ export async function POST(req: Request) {
       );
     }
 
-    // Test API connection before chat
-    try {
-      const model = genAI.getGenerativeModel({ 
-        model: "gemini-1.5-flash",
-        generationConfig: {
-          temperature: settings?.temperature ?? 0,
-          maxOutputTokens: 500,
-        }
-      });
-
-      const chat = model.startChat({
-        history: [],
-      });
-
-      const toneModifier = TONE_MODIFIERS[settings?.tone as keyof typeof TONE_MODIFIERS] ?? TONE_MODIFIERS.default;
-      const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}
+    const toneModifier = TONE_MODIFIERS[settings?.tone as keyof typeof TONE_MODIFIERS] ?? TONE_MODIFIERS.default;
+    const prompt = `${PERSONA_PROMPTS[persona as keyof typeof PERSONA_PROMPTS]}
       ${toneModifier}
       
       User: ${message}
       
       Response:`;
+    const temperature =
+      typeof settings?.temperature === 'number' ? settings.temperature : 0;
 
-      const result = await chat.sendMessage(prompt);
-      const response = await result.response;
-      const text = response.text();
+    try {
+      let lastError: unknown;
 
-      if (!text) {
-        throw new Error('Empty response from AI');
+      for (const modelName of FALLBACK_GEMINI_MODELS) {
+        try {
+          const model = genAI.getGenerativeModel({
+            model: modelName,
+            generationConfig: {
+              temperature,
+              maxOutputTokens: 500,
+            }
+          });
+
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          const text = response.text();
+
+          if (!text) {
+            throw new Error('Empty response from AI');
+          }
+
+          return NextResponse.json({ message: text });
+        } catch (apiError) {
+          lastError = apiError;
+
+          if (!isModelResolutionError(apiError)) {
+            throw apiError;
+          }
+        }
       }
 
-      return NextResponse.json({ message: text });
+      throw lastError ?? new Error('No Gemini model responded successfully');
     } catch (apiError) {
       console.error('Gemini API Error:', apiError);
+
+      if (isQuotaExceededError(apiError)) {
+        return buildQuotaExceededResponse(apiError);
+      }
+
       return NextResponse.json(
         { 
           error: 'Failed to communicate with AI service. Please check API configuration.',
