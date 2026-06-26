@@ -3,16 +3,223 @@
 @tailwind utilities;
 
 @layer base {
-  .prose {
-    @apply text-white;
+  body {
+    @apply font-body text-body-md;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
-  .prose strong {
-    @apply text-white;
-  }
-  .prose ul {
-    @apply text-white;
-  }
-  .prose li {
-    @apply text-white;
-  }
+}
+
+.grainy-overlay {
+  position: fixed;
+  top: 0; left: 0; width: 100%; height: 100%;
+  pointer-events: none; z-index: 9999; opacity: 0.015;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.chat-vh {
+  height: calc(100vh - 160px);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in { animation: fadeIn 0.2s ease-out forwards; }
+
+/* Markdown content in chat messages */
+.msg-content h1 { @apply text-lg font-bold mt-3 mb-2; }
+.msg-content h2 { @apply text-base font-bold mt-3 mb-2; }
+.msg-content h3 { @apply text-sm font-bold mt-2 mb-1; }
+.msg-content h4 { @apply text-sm font-semibold mt-2 mb-1; }
+.msg-content p { @apply mb-2; }
+.msg-content p:last-child { @apply mb-0; }
+.msg-content ul { @apply list-disc ml-4 mb-2; }
+.msg-content ol { @apply list-decimal ml-4 mb-2; }
+.msg-content li { @apply mb-1; }
+.msg-content code {
+  @apply px-1.5 py-0.5 rounded text-sm font-code;
+  background: rgba(232, 116, 42, 0.1);
+  color: #e8742a;
+}
+.msg-content pre {
+  @apply rounded-lg p-3 mb-2 overflow-x-auto;
+  background: rgba(0, 0, 0, 0.06);
+}
+.msg-content pre code {
+  @apply bg-transparent px-0 py-0;
+  color: inherit;
+}
+.msg-content strong { @apply font-semibold; }
+.msg-content em { @apply italic; }
+.msg-content blockquote {
+  @apply border-l-4 pl-3 italic;
+  border-color: rgba(232, 116, 42, 0.3);
+  color: #53433e;
+}
+.msg-content hr {
+  @apply my-3;
+  border-color: rgba(216, 194, 187, 0.3);
+}
+.msg-content a {
+  color: #e8742a;
+  text-decoration: underline;
+}
+
+/* ============================================
+   DARK MODE — from dark_mode_design.md
+   Deep charcoal foundation (#110e0d) with
+   vibrant primary orange accents.
+   ============================================ */
+
+.dark {
+  color-scheme: dark;
+}
+
+/* --- Root & body --- */
+html.dark,
+html.dark body {
+  background-color: #110e0d;
+  color: #ede0db;
+}
+
+/* --- Sidebar --- */
+html.dark aside {
+  background-color: #110e0d;
+  border-color: #413d3c;
+}
+
+/* --- Header --- */
+html.dark header {
+  background-color: rgba(17, 14, 13, 0.85);
+  border-color: #413d3c;
+}
+
+/* --- Chat area --- */
+html.dark main {
+  background-color: #110e0d;
+}
+
+/* --- Surface containers (progressive depth) --- */
+html.dark .bg-surface-container-low {
+  background-color: #110e0d;
+}
+html.dark .bg-surface-container {
+  background-color: #161312;
+}
+html.dark .bg-surface-container-high {
+  background-color: #1e1b1a;
+}
+html.dark .bg-surface-container-highest {
+  background-color: #2d2928;
+}
+html.dark .bg-surface-container-lowest {
+  background-color: #080706;
+}
+
+/* --- Main surface & body --- */
+html.dark .bg-surface {
+  background-color: #110e0d;
+  color: #ede0db;
+}
+
+/* --- AI chat bubbles --- */
+html.dark .bg-surface-container-low.rounded-tl-xs {
+  background-color: #1e1b1a;
+}
+
+/* --- Input area wrapper --- */
+html.dark [class*="bg-surface-container-highest/30"],
+html.dark [class*="bg-surface-container-highest\\/30"] {
+  background-color: #2d2928;
+}
+
+/* --- Textarea --- */
+html.dark textarea {
+  background-color: #1e1b1a;
+  color: #ede0db;
+}
+
+/* --- Persona cards --- */
+html.dark [id^="persona-"] {
+  background-color: #161312;
+  border-color: transparent;
+}
+html.dark [id^="persona-"]:hover {
+  background-color: #1e1b1a;
+}
+html.dark .persona-card-active {
+  background-color: #1e1b1a;
+  border-color: #e8742a;
+}
+
+/* --- Text colors --- */
+html.dark .text-on-surface {
+  color: #ede0db;
+}
+html.dark .text-on-surface-variant {
+  color: #d8c2bb;
+}
+html.dark .text-on-primary-container {
+  color: #ffdbcc;
+}
+
+/* --- Primary container --- */
+html.dark .bg-primary-container {
+  background-color: #883700;
+}
+
+/* --- Borders --- */
+html.dark [class*="border-outline-variant"] {
+  border-color: #413d3c;
+}
+
+/* --- Outline backgrounds --- */
+html.dark .bg-outline-variant {
+  background-color: #413d3c;
+}
+
+/* --- Slider accent --- */
+html.dark .accent-primary {
+  accent-color: #e8742a;
+}
+
+/* --- Suggestion buttons --- */
+html.dark [class*="bg-white/60"],
+html.dark [class*="bg-white\\/60"] {
+  background-color: rgba(30, 27, 26, 0.6);
+  color: #d8c2bb;
+  border-color: #413d3c;
+}
+
+/* --- Code blocks --- */
+html.dark .msg-content pre {
+  background: rgba(255, 255, 255, 0.06);
+}
+html.dark .msg-content code {
+  background: rgba(232, 116, 42, 0.15);
+  color: #ffb68f;
+}
+html.dark .msg-content blockquote {
+  color: #d8c2bb;
+  border-color: rgba(232, 116, 42, 0.4);
+}
+html.dark .msg-content hr {
+  border-color: rgba(65, 61, 60, 0.5);
+}
+
+/* --- Scrollbar --- */
+html.dark ::-webkit-scrollbar-track {
+  background: #110e0d;
+}
+html.dark ::-webkit-scrollbar-thumb {
+  background: #413d3c;
+}
+
+/* --- Transitions (smooth, not laggy) --- */
+header, aside, main, [id^="persona-"], .persona-card-active {
+  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
 }

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HPersona — Chat with Hitesh & Piyush</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Grotesk:wght@400;500;600;700&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --primary:#E8742A;--primary-light:#F59E4C;--primary-dark:#C45D1A;
+  --hitesh:#E8742A;--hitesh-bg:rgba(232,116,42,.08);--hitesh-border:rgba(232,116,42,.2);
+  --piyush:#0D9488;--piyush-bg:rgba(13,148,136,.08);--piyush-border:rgba(13,148,136,.2);
+  --cream:#FAF7F2;--cream-dark:#F0EBE3;
+  --charcoal:#1C1917;--charcoal-light:#292524;
+  --g100:#F5F5F4;--g200:#E7E5E4;--g300:#D6D3D1;--g400:#A8A29E;--g500:#78716C;--g600:#57534E;--g700:#44403C;--g800:#292524;--g900:#1C1917;
+  --success:#16A34A;--error:#DC2626;
+  --r-sm:8px;--r-md:12px;--r-lg:16px;--r-xl:24px;--r-full:9999px;
+  --shadow-sm:0 1px 2px rgba(0,0,0,.05);--shadow-md:0 4px 12px rgba(0,0,0,.08);--shadow-lg:0 8px 24px rgba(0,0,0,.12);
+}
+[data-theme="dark"]{
+  --cream:#1C1917;--cream-dark:#292524;--charcoal:#FAF7F2;--charcoal-light:#E7E5E4;
+  --g100:#292524;--g200:#44403C;--g300:#57534E;--g400:#78716C;--g500:#A8A29E;--g600:#D6D3D1;--g700:#E7E5E4;--g800:#F5F5F4;--g900:#FAF7F2;
+  --hitesh-bg:rgba(232,116,42,.12);--piyush-bg:rgba(13,148,136,.12);
+}
+html{font-size:16px;-webkit-font-smoothing:antialiased}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--charcoal);line-height:1.6;min-height:100vh;display:flex;flex-direction:column;transition:background .3s,color .3s}
+body::before{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.025'/%3E%3C/svg%3E");pointer-events:none;z-index:9999}
+
+/* NAV */
+.nav{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--g200);position:sticky;top:0;background:var(--cream);z-index:100;backdrop-filter:blur(12px)}
+.nav-brand{display:flex;align-items:center;gap:12px}
+.nav-logo{width:36px;height:36px;border-radius:var(--r-md);background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff}
+.nav-title{font-family:'Clash Grotesk',sans-serif;font-weight:700;font-size:18px}
+.nav-actions{display:flex;align-items:center;gap:8px}
+.nav-btn{background:none;border:1.5px solid var(--g300);border-radius:var(--r-full);padding:8px 16px;font-family:'DM Sans';font-size:13px;font-weight:600;color:var(--charcoal);cursor:pointer;transition:all .2s}
+.nav-btn:hover{border-color:var(--primary);color:var(--primary)}
+.theme-btn{width:36px;height:36px;border-radius:50%;background:var(--g200);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--charcoal);transition:all .2s;font-size:16px}
+.theme-btn:hover{background:var(--g300)}
+
+/* HERO */
+.hero{text-align:center;padding:48px 24px 40px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40%;left:-20%;width:140%;height:180%;background:radial-gradient(ellipse at 30% 50%,rgba(232,116,42,.06) 0%,transparent 60%),radial-gradient(ellipse at 70% 40%,rgba(13,148,136,.05) 0%,transparent 50%);pointer-events:none}
+.hero-icon{width:56px;height:56px;border-radius:var(--r-lg);background:var(--primary);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;box-shadow:0 4px 16px rgba(232,116,42,.3);position:relative}
+.hero h1{font-family:'Clash Grotesk',sans-serif;font-weight:700;font-size:clamp(28px,5vw,44px);line-height:1.12;margin-bottom:12px;position:relative}
+.hero h1 .orange{color:var(--hitesh)}.hero h1 .teal{color:var(--piyush)}
+.hero p{font-size:16px;color:var(--g500);max-width:440px;margin:0 auto 24px;position:relative}
+.hero-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+
+/* BUTTONS */
+.btn{font-family:'DM Sans';font-weight:600;font-size:14px;padding:12px 24px;border-radius:var(--r-full);border:none;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;gap:8px}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(232,116,42,.3)}
+.btn-primary:hover{background:var(--primary-dark);transform:translateY(-1px)}
+.btn-secondary{background:var(--g200);color:var(--charcoal)}
+.btn-secondary:hover{background:var(--g300)}
+
+/* PERSONA SELECTOR */
+.personas{display:flex;gap:12px;justify-content:center;padding:0 24px 24px;flex-wrap:wrap}
+.persona-card{display:flex;align-items:center;gap:12px;padding:12px 20px;border-radius:var(--r-lg);border:1.5px solid var(--g200);background:var(--cream);cursor:pointer;transition:all .25s;flex:1;max-width:320px}
+.persona-card:hover{border-color:var(--g400);transform:translateY(-1px);box-shadow:var(--shadow-md)}
+.persona-card.active.hitesh{border-color:var(--hitesh-border);background:var(--hitesh-bg)}
+.persona-card.active.piyush{border-color:var(--piyush-border);background:var(--piyush-bg)}
+.persona-avatar{width:44px;height:44px;border-radius:50%;object-fit:cover;border:2px solid transparent;flex-shrink:0}
+.persona-card.active.hitesh .persona-avatar{border-color:var(--hitesh)}
+.persona-card.active.piyush .persona-avatar{border-color:var(--piyush)}
+.persona-info{min-width:0}
+.persona-name{font-family:'Clash Grotesk',sans-serif;font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.persona-desc{font-size:12px;color:var(--g500);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.persona-tags{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.persona-tag{font-size:10px;padding:2px 8px;border-radius:var(--r-full);font-weight:500}
+.persona-tag.hitesh{background:var(--hitesh-bg);color:var(--hitesh)}
+.persona-tag.piyush{background:var(--piyush-bg);color:var(--piyush)}
+
+/* CHAT */
+.chat-wrap{flex:1;display:flex;flex-direction:column;max-width:720px;width:100%;margin:0 auto;padding:0 16px}
+.chat-container{flex:1;display:flex;flex-direction:column;background:var(--cream-dark);border-radius:var(--r-xl) var(--r-xl) 0 0;overflow:hidden;border:1px solid var(--g200);border-bottom:none;min-height:400px}
+[data-theme="dark"] .chat-container{background:var(--g100);border-color:var(--g700)}
+.chat-header{padding:14px 20px;display:flex;align-items:center;gap:12px;border-bottom:1px solid var(--g200);background:var(--cream)}
+[data-theme="dark"] .chat-header{background:var(--g100);border-color:var(--g700)}
+.chat-header-avatar{width:36px;height:36px;border-radius:50%;object-fit:cover}
+.chat-header-info{flex:1;min-width:0}
+.chat-header-name{font-family:'Clash Grotesk',sans-serif;font-weight:600;font-size:15px}
+.chat-header-status{font-size:12px;color:var(--success);display:flex;align-items:center;gap:4px}
+.chat-header-status::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--success)}
+.chat-settings{background:none;border:none;color:var(--g400);cursor:pointer;padding:8px;border-radius:var(--r-sm);transition:color .2s}
+.chat-settings:hover{color:var(--charcoal)}
+
+.chat-body{flex:1;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:16px;scroll-behavior:smooth}
+.msg{display:flex;gap:10px;max-width:85%;animation:msgIn .3s ease-out}
+.msg.user{flex-direction:row-reverse;align-self:flex-end}
+.msg-avatar{width:32px;height:32px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;font-family:'Clash Grotesk'}
+.msg-avatar.hitesh{background:var(--hitesh)}
+.msg-avatar.piyush{background:var(--piyush)}
+.msg-avatar.user{background:var(--g400)}
+.msg-bubble{padding:12px 16px;border-radius:var(--r-lg);font-size:14px;line-height:1.6}
+.msg.bot .msg-bubble{border-bottom-left-radius:4px}
+.msg.bot.hitesh .msg-bubble{background:var(--hitesh-bg);color:var(--charcoal)}
+.msg.bot.piyush .msg-bubble{background:var(--piyush-bg);color:var(--charcoal)}
+.msg.user .msg-bubble{background:var(--primary);color:#fff;border-bottom-right-radius:4px}
+.msg-time{font-size:11px;color:var(--g400);margin-top:4px;padding:0 42px}
+.msg.user .msg-time{text-align:right}
+
+.typing{display:flex;gap:4px;padding:8px 16px}
+.typing-dot{width:6px;height:6px;border-radius:50%;background:var(--g400);animation:typingBounce 1.4s infinite ease-in-out}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-4px)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+.chat-input-wrap{padding:12px 16px 16px;background:var(--cream);border-top:1px solid var(--g200);display:flex;gap:10px;align-items:center}
+[data-theme="dark"] .chat-input-wrap{background:var(--g100);border-color:var(--g700)}
+.chat-input{flex:1;padding:12px 16px;border-radius:var(--r-full);border:1.5px solid var(--g200);background:var(--cream-dark);font-family:'DM Sans';font-size:14px;color:var(--charcoal);outline:none;transition:border-color .2s}
+[data-theme="dark"] .chat-input{background:var(--g800);border-color:var(--g700);color:var(--charcoal)}
+.chat-input:focus{border-color:var(--primary)}
+.chat-input::placeholder{color:var(--g400)}
+.send-btn{width:44px;height:44px;border-radius:50%;background:var(--primary);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;box-shadow:0 2px 8px rgba(232,116,42,.3);flex-shrink:0}
+.send-btn:hover{background:var(--primary-dark);transform:scale(1.05)}
+.send-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.tone-select{padding:8px 12px;border-radius:var(--r-full);border:1.5px solid var(--g200);background:var(--cream-dark);font-family:'DM Sans';font-size:12px;color:var(--charcoal);cursor:pointer;outline:none}
+[data-theme="dark"] .tone-select{background:var(--g800);border-color:var(--g700);color:var(--charcoal)}
+
+/* FEATURES */
+.features{padding:48px 24px;max-width:960px;margin:0 auto;width:100%}
+.features h2{font-family:'Clash Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,3.5vw,28px);text-align:center;margin-bottom:32px}
+.feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px}
+.feature-card{padding:24px;border-radius:var(--r-lg);background:var(--cream-dark);border:1px solid var(--g200);transition:all .2s}
+[data-theme="dark"] .feature-card{background:var(--g100);border-color:var(--g700)}
+.feature-card:hover{transform:translateY(-2px);box-shadow:var(--shadow-md)}
+.feature-icon{width:40px;height:40px;border-radius:var(--r-md);background:var(--hitesh-bg);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:var(--hitesh)}
+.feature-card:nth-child(2) .feature-icon{background:var(--piyush-bg);color:var(--piyush)}
+.feature-card:nth-child(3) .feature-icon{background:rgba(22,163,74,.08);color:var(--success)}
+.feature-card:nth-child(4) .feature-icon{background:rgba(217,119,6,.08);color:var(--primary-light)}
+.feature-title{font-family:'Clash Grotesk',sans-serif;font-weight:600;font-size:16px;margin-bottom:6px}
+.feature-desc{font-size:14px;color:var(--g500);line-height:1.5}
+
+/* FOOTER */
+.footer{padding:32px 24px;border-top:1px solid var(--g200);margin-top:auto}
+.footer-inner{max-width:960px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-brand{font-family:'Clash Grotesk',sans-serif;font-weight:600;font-size:15px}
+.footer-links{display:flex;gap:20px}
+.footer-links a{font-size:13px;color:var(--g500);text-decoration:none;transition:color .2s}
+.footer-links a:hover{color:var(--primary)}
+.footer-copy{font-size:12px;color:var(--g400);width:100%;text-align:center;margin-top:16px}
+
+/* SETTINGS MODAL */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;display:none;align-items:center;justify-content:center;backdrop-filter:blur(4px)}
+.settings-overlay.open{display:flex}
+.settings-modal{background:var(--cream);border-radius:var(--r-xl);padding:28px;width:90%;max-width:360px;box-shadow:var(--shadow-lg);animation:modalIn .25s ease-out}
+[data-theme="dark"] .settings-modal{background:var(--g100)}
+@keyframes modalIn{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+.settings-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
+.settings-header h3{font-family:'Clash Grotesk',sans-serif;font-weight:600;font-size:18px}
+.settings-close{background:none;border:none;color:var(--g400);cursor:pointer;font-size:20px;padding:4px}
+.settings-close:hover{color:var(--charcoal)}
+.settings-group{margin-bottom:16px}
+.settings-label{font-size:13px;font-weight:600;color:var(--g500);margin-bottom:8px;display:block}
+.settings-range{width:100%;accent-color:var(--primary)}
+.settings-range-val{font-size:13px;color:var(--charcoal);font-weight:600;margin-left:8px}
+.tone-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.tone-btn{padding:10px;border-radius:var(--r-md);border:1.5px solid var(--g200);background:var(--cream-dark);font-family:'DM Sans';font-size:13px;font-weight:500;color:var(--charcoal);cursor:pointer;transition:all .2s;text-transform:capitalize}
+[data-theme="dark"] .tone-btn{background:var(--g800);border-color:var(--g700)}
+.tone-btn.active{border-color:var(--primary);background:var(--hitesh-bg);color:var(--primary)}
+.tone-btn:hover{border-color:var(--primary)}
+
+@media(max-width:640px){
+  .hero{padding:32px 16px 24px}
+  .personas{flex-direction:column;align-items:stretch}
+  .persona-card{max-width:100%}
+  .chat-wrap{padding:0 8px}
+  .feature-grid{grid-template-columns:1fr}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+@media(prefers-reduced-motion:reduce){
+  *{animation-duration:0.01ms!important;transition-duration:0.01ms!important}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+    </div>
+    <span class="nav-title">HPersona</span>
+  </div>
+  <div class="nav-actions">
+    <button class="nav-btn" onclick="openSettings()">Settings</button>
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme" aria-label="Toggle dark mode">◐</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-icon">
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+  </div>
+  <h1>Chat with <span class="orange">Hitesh</span> & <span class="teal">Piyush</span></h1>
+  <p>Learn coding through fun, Hinglish conversations with your favorite tech educators. Ask anything, anytime.</p>
+  <div class="hero-btns">
+    <button class="btn btn-primary" onclick="scrollToChat()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Start Chatting
+    </button>
+    <button class="btn btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="22"/></svg>
+      Try Voice Chat
+    </button>
+  </div>
+</section>
+
+<!-- PERSONA SELECTOR -->
+<div class="personas">
+  <div class="persona-card active hitesh" onclick="selectPersona('hitesh')" id="card-hitesh">
+    <img class="persona-avatar" src="hitesh.jpeg" alt="Hitesh Choudhary" onerror="this.style.background='var(--hitesh)';this.style.display='flex'">
+    <div class="persona-info">
+      <div class="persona-name">Hitesh Choudhary</div>
+      <div class="persona-desc">Tech Educator & Entrepreneur</div>
+      <div class="persona-tags">
+        <span class="persona-tag hitesh">JavaScript</span>
+        <span class="persona-tag hitesh">Python</span>
+        <span class="persona-tag hitesh">DSA</span>
+      </div>
+    </div>
+  </div>
+  <div class="persona-card piyush" onclick="selectPersona('piyush')" id="card-piyush">
+    <img class="persona-avatar" src="piyush.jpg" alt="Piyush Garg" onerror="this.style.background='var(--piyush)';this.style.display='flex'">
+    <div class="persona-info">
+      <div class="persona-name">Piyush Garg</div>
+      <div class="persona-desc">Educator & Content Creator</div>
+      <div class="persona-tags">
+        <span class="persona-tag piyush">Docker</span>
+        <span class="persona-tag piyush">React</span>
+        <span class="persona-tag piyush">Gen AI</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- CHAT -->
+<div class="chat-wrap" id="chat-section">
+  <div class="chat-container">
+    <div class="chat-header">
+      <img class="chat-header-avatar" id="header-avatar" src="hitesh.jpeg" alt="" onerror="this.style.background='var(--hitesh)';this.style.borderRadius='50%'">
+      <div class="chat-header-info">
+        <div class="chat-header-name" id="header-name">Hitesh Choudhary</div>
+        <div class="chat-header-status">Online</div>
+      </div>
+      <button class="chat-settings" onclick="openSettings()" title="Settings" aria-label="Open settings">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+    </div>
+    <div class="chat-body" id="chat-body">
+      <div class="msg bot hitesh">
+        <div class="msg-avatar hitesh">H</div>
+        <div>
+          <div class="msg-bubble">Hanji, to chaliye shuru karte hain! Kya seekhna hai aaj? ☕</div>
+          <div class="msg-time">just now</div>
+        </div>
+      </div>
+    </div>
+    <div class="chat-input-wrap">
+      <select class="tone-select" id="tone-select" title="Select tone">
+        <option value="default">Default</option>
+        <option value="funny">Funny</option>
+        <option value="advice">Advice</option>
+        <option value="educational">Educational</option>
+      </select>
+      <input class="chat-input" id="chat-input" type="text" placeholder="Ask Hitesh anything..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
+      <button class="send-btn" id="send-btn" onclick="sendMessage()" title="Send message" aria-label="Send">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section class="features">
+  <h2>Why HPersona?</h2>
+  <div class="feature-grid">
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/></svg>
+      </div>
+      <div class="feature-title">Hinglish Conversations</div>
+      <div class="feature-desc">Chat naturally in Hinglish, just like you would with a friend who speaks your language.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg>
+      </div>
+      <div class="feature-title">Distinct Personalities</div>
+      <div class="feature-desc">Hitesh brings the chai-and-code vibes. Piyush keeps it direct and practical.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div class="feature-title">Instant Responses</div>
+      <div class="feature-desc">Get immediate, practical answers powered by AI that understands the Indian tech ecosystem.</div>
+    </div>
+    <div class="feature-card">
+      <div class="feature-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      </div>
+      <div class="feature-title">Adjustable Tone</div>
+      <div class="feature-desc">Switch between default, funny, advice, or educational modes to match your learning style.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">HPersona</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="https://github.com/AnantGabhane" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <div class="footer-copy">Learn from the best, virtually.</div>
+  </div>
+</footer>
+
+<!-- SETTINGS MODAL -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-modal">
+    <div class="settings-header">
+      <h3>AI Settings</h3>
+      <button class="settings-close" onclick="closeSettings()" aria-label="Close settings">&times;</button>
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">Temperature <span class="settings-range-val" id="temp-val">0.7</span></label>
+      <input type="range" class="settings-range" id="temp-range" min="0" max="2" step="0.1" value="0.7" oninput="document.getElementById('temp-val').textContent=this.value">
+      <div style="font-size:11px;color:var(--g400);margin-top:4px">Lower = consistent, higher = creative</div>
+    </div>
+    <div class="settings-group">
+      <label class="settings-label">Personality Tone</label>
+      <div class="tone-grid">
+        <button class="tone-btn active" onclick="setTone(this,'default')">Default</button>
+        <button class="tone-btn" onclick="setTone(this,'funny')">Funny</button>
+        <button class="tone-btn" onclick="setTone(this,'advice')">Advice</button>
+        <button class="tone-btn" onclick="setTone(this,'educational')">Educational</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let activePersona='hitesh';
+let isLoading=false;
+const hiteshMessages=[{text:"Hanji, to chaliye shuru karte hain! Kya seekhna hai aaj? ☕",isUser:false}];
+const piyushMessages=[{text:"Haan bhai, welcome! Kya sikhna chahoge aaj?",isUser:false}];
+
+function selectPersona(p){
+  activePersona=p;
+  document.querySelectorAll('.persona-card').forEach(c=>c.classList.remove('active'));
+  document.getElementById('card-'+p).classList.add('active');
+  const info={hitesh:{name:'Hitesh Choudhary',avatar:'hitesh.jpeg'},piyush:{name:'Piyush Garg',avatar:'piyush.jpg'}};
+  document.getElementById('header-name').textContent=info[p].name;
+  document.getElementById('header-avatar').src=info[p].avatar;
+  document.getElementById('chat-input').placeholder='Ask '+info[p].name.split(' ')[0]+' anything...';
+  renderMessages();
+}
+
+function renderMessages(){
+  const msgs=activePersona==='hitesh'?hiteshMessages:piyushMessages;
+  const body=document.getElementById('chat-body');
+  body.innerHTML='';
+  msgs.forEach(m=>{
+    const cls=m.isUser?'msg user':'msg bot '+activePersona;
+    const avatarCls=m.isUser?'user':activePersona;
+    const initial=m.isUser?'U':activePersona==='hitesh'?'H':'P';
+    body.innerHTML+=`<div class="${cls}"><div class="msg-avatar ${avatarCls}">${initial}</div><div><div class="msg-bubble">${m.text}</div><div class="msg-time">just now</div></div></div>`;
+  });
+  body.scrollTop=body.scrollHeight;
+}
+
+async function sendMessage(){
+  const input=document.getElementById('chat-input');
+  const msg=input.value.trim();
+  if(!msg||isLoading)return;
+  const msgs=activePersona==='hitesh'?hiteshMessages:piyushMessages;
+  msgs.push({text:msg,isUser:true});
+  input.value='';
+  renderMessages();
+  isLoading=true;
+  document.getElementById('send-btn').disabled=true;
+  const typing=document.createElement('div');
+  typing.className='msg bot '+activePersona;
+  typing.id='typing-indicator';
+  typing.innerHTML=`<div class="msg-avatar ${activePersona}">${activePersona==='hitesh'?'H':'P'}</div><div class="msg-bubble"><div class="typing"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div></div>`;
+  document.getElementById('chat-body').appendChild(typing);
+  document.getElementById('chat-body').scrollTop=document.getElementById('chat-body').scrollHeight;
+
+  try{
+    const tone=document.getElementById('tone-select').value;
+    const temp=parseFloat(document.getElementById('temp-range').value);
+    const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg,persona:activePersona,settings:{tone,temperature:temp}})});
+    const data=await res.json();
+    if(!res.ok||data.error)throw new Error(data.userMessage||data.error||'Something went wrong');
+    msgs.push({text:data.message,isUser:false});
+  }catch(e){
+    msgs.push({text:e.message||'Sorry, something went wrong. Please try again.',isUser:false});
+  }finally{
+    isLoading=false;
+    document.getElementById('send-btn').disabled=false;
+    const ti=document.getElementById('typing-indicator');
+    if(ti)ti.remove();
+    renderMessages();
+  }
+}
+
+function scrollToChat(){document.getElementById('chat-section').scrollIntoView({behavior:'smooth'})}
+function toggleTheme(){const b=document.body;b.setAttribute('data-theme',b.getAttribute('data-theme')==='dark'?'':'dark')}
+function openSettings(){document.getElementById('settings-overlay').classList.add('open')}
+function closeSettings(){document.getElementById('settings-overlay').classList.remove('open')}
+function setTone(btn,tone){
+  document.querySelectorAll('.tone-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tone-select').value=tone;
+}
+
+// System preference detection
+if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches){
+  document.body.setAttribute('data-theme','dark');
+}
+</script>
+</body>
+</html>

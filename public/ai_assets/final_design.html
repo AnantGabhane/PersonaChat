@@ -1,0 +1,417 @@
+<!DOCTYPE html><html class="light" lang="en" style=""><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>HPersona - Your AI Learning Companion</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<!-- Tailwind -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface": "#fff8f6",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#ffdbca",
+                        "tertiary-fixed-dim": "#81cfff",
+                        "outline": "#8a7266",
+                        "success": "#16A34A",
+                        "secondary": "#006a61",
+                        "primary": "#9d4400",
+                        "secondary-container": "#86f2e4",
+                        "outline-variant": "#dec1b3",
+                        "primary-container": "#e8742a",
+                        "on-primary": "#ffffff",
+                        "surface-bright": "#fff8f6",
+                        "on-secondary-fixed": "#00201d",
+                        "error": "#DC2626",
+                        "piyush-teal": "#0D9488",
+                        "charcoal": "#1C1917",
+                        "surface-container": "#ffeae0",
+                        "on-tertiary": "#ffffff",
+                        "surface-dim": "#ebd6cd",
+                        "on-tertiary-fixed": "#001e2d",
+                        "on-secondary": "#ffffff",
+                        "hitesh-orange": "#E8742A",
+                        "on-error-container": "#93000a",
+                        "surface-variant": "#f3ded5",
+                        "tertiary-fixed": "#c6e7ff",
+                        "surface-container-high": "#f9e4da",
+                        "inverse-surface": "#3a2e28",
+                        "on-tertiary-container": "#003147",
+                        "inverse-on-surface": "#ffede6",
+                        "inverse-primary": "#ffb68f",
+                        "on-tertiary-fixed-variant": "#004c6b",
+                        "on-primary-fixed-variant": "#773200",
+                        "secondary-fixed": "#89f5e7",
+                        "on-surface-variant": "#574238",
+                        "surface-container-highest": "#f3ded5",
+                        "secondary-fixed-dim": "#6bd8cb",
+                        "on-secondary-fixed-variant": "#005049",
+                        "on-primary-container": "#4f1f00",
+                        "tertiary": "#00658c",
+                        "surface-container-low": "#fff1eb",
+                        "on-surface": "#241914",
+                        "warning": "#D97706",
+                        "surface-container-lowest": "#ffffff",
+                        "cream-dark": "#F0EBE3",
+                        "on-background": "#241914",
+                        "tertiary-container": "#009fda",
+                        "surface-tint": "#9d4400",
+                        "on-primary-fixed": "#331100",
+                        "primary-fixed-dim": "#ffb68f",
+                        "cream": "#FAF7F2",
+                        "background": "#fff8f6",
+                        "on-secondary-container": "#006f66",
+                        "on-error": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "2xs": "2px",
+                        "md": "16px",
+                        "3xl": "64px",
+                        "sm": "8px",
+                        "lg": "24px",
+                        "2xl": "48px",
+                        "xs": "4px",
+                        "xl": "32px",
+                        "max-content-width": "1280px"
+                    },
+                    "fontFamily": {
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "headline-xl-mobile": ["Plus Jakarta Sans"],
+                        "label-md": ["DM Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "code": ["JetBrains Mono"],
+                        "body-md": ["DM Sans"],
+                        "headline-xl": ["Plus Jakarta Sans"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "label-sm": ["DM Sans"]
+                    },
+                    "fontSize": {
+                        "headline-lg-mobile": ["24px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "headline-xl-mobile": ["36px", {"lineHeight": "1.1", "fontWeight": "700"}],
+                        "label-md": ["14px", {"lineHeight": "1.5", "fontWeight": "500"}],
+                        "headline-md": ["20px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "code": ["14px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "body-md": ["16px", {"lineHeight": "1.7", "fontWeight": "400"}],
+                        "headline-xl": ["56px", {"lineHeight": "1.1", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "1.4", "fontWeight": "500"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .grainy-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 9999; opacity: 0.02;
+            background-image: url("https://www.transparenttextures.com/patterns/p6.png");
+        }
+        .chat-vh {
+            height: calc(100vh - 160px);
+        }
+        .persona-card-active {
+            border: 2px solid var(--tw-primary);
+            background: white;
+        }
+        .dark .persona-card-active {
+            background: #3a2e28;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in { animation: fadeIn 0.3s ease-out forwards; }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-md text-body-md overflow-hidden">
+<div class="grainy-overlay"></div>
+<!-- Main Desktop Layout -->
+<div class="flex h-screen w-full overflow-hidden">
+<!-- Left Sidebar: Personas & Settings -->
+<aside class="w-80 flex-shrink-0 bg-surface-container-low border-r border-outline-variant/30 flex flex-col">
+<div class="p-lg border-b border-outline-variant/30">
+<span class="font-headline-md text-headline-md font-bold text-primary">HPersona</span>
+<p class="text-label-sm text-on-surface-variant mt-xs">AI Learning Companion</p>
+</div>
+<div class="flex-1 overflow-y-auto p-md space-y-lg">
+<!-- Persona Selection -->
+<div>
+<h4 class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-md px-xs">Mentors</h4>
+<div class="space-y-sm">
+<!-- Hitesh Card -->
+<div class="cursor-pointer group p-md rounded-xl border-2 border-transparent bg-surface-container hover:bg-surface-container-high transition-all flex items-center gap-md" id="persona-hitesh" onclick="selectPersona('hitesh')">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-hitesh-orange flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3i9QyvCokUzSKkyXlYKNjFECM8mY9xjuCWGljFfpQlSNGYoP1VW7W4RqlTOI0iQ1iEIXUfvk-UOjZqhgYuvzYIO8K59YqRquSMF4d6GBc6NSd8MpdKgkdb_UfOSc5QPs5IFIbeN5jD8g15H_vO2MpTvRDi0UvMMEBxBMVKH145MAvZAsg6_hqcX62aOxaKDLPBfe5xTLkZ68y6sWfI8VpB_sPRgRqpY3v0DYnf9MkKu-VPZbNzRR4Bb3HT71qgnBzgs0MZhQ_nbU">
+</div>
+<div class="overflow-hidden">
+<h5 class="font-headline-md text-[16px] text-on-surface truncate">Hitesh Choudhary</h5>
+<p class="text-label-sm text-on-surface-variant truncate">Web &amp; JavaScript</p>
+</div>
+</div>
+<!-- Piyush Card -->
+<div class="persona-card-active cursor-pointer group p-md rounded-xl border-2 border-primary shadow-sm hover:shadow-md transition-all flex items-center gap-md bg-white dark:bg-charcoal" id="persona-piyush" onclick="selectPersona('piyush')">
+<div class="w-12 h-12 rounded-full overflow-hidden border-2 border-piyush-teal flex-shrink-0">
+<img class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB1nbFC8ntjbHZaob5H0EdgfZoZVpQFs4ODxdH1v065wVgn2osbtNpesJiQ9ZIJfY-HqqUgLnNNDtietiQ8lL0xyYgYy8PeuXpOSjAUOp3YNew99NrO3kTIzNWCV09bEEZzZKtOXgOMdkEjkYUeMgfnc02-rM071KlzRRBCOPmABj5VTCVqsTzCxTw7xFyuCIUGlZCqUqI_jQDbKA7rHuSRbYvv1yAn7d3NoQ8MG-6dW-qWzjsRHs57DuMqmP_Y17MmpWX4wJlmRA">
+</div>
+<div class="overflow-hidden">
+<h5 class="font-headline-md text-[16px] text-on-surface truncate">Piyush Garg</h5>
+<p class="text-label-sm text-on-surface-variant truncate">Systems &amp; DevOps</p>
+</div>
+</div>
+</div>
+</div>
+<!-- AI Config Section -->
+<div class="pt-lg border-t border-outline-variant/30">
+<h4 class="text-label-sm font-bold text-on-surface-variant uppercase tracking-wider mb-md px-xs">AI Config</h4>
+<div class="space-y-lg px-xs">
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-xs">Creativity (Temp)</label>
+<input class="w-full h-1.5 bg-outline-variant rounded-lg appearance-none cursor-pointer accent-primary" max="1" min="0" step="0.1" type="range" value="0.7">
+</div>
+<div>
+<label class="block text-label-sm font-label-sm text-on-surface-variant mb-xs">Learning Tone</label>
+<div class="grid grid-cols-2 gap-xs">
+<button class="py-1.5 bg-primary text-on-primary rounded-lg text-label-sm font-label-sm">Casual</button>
+<button class="py-1.5 border border-outline rounded-lg text-label-sm font-label-sm text-on-surface-variant hover:bg-surface-variant transition-colors">Academic</button>
+</div>
+</div>
+<label class="flex items-center gap-md cursor-pointer pt-sm">
+<input checked="" class="w-5 h-5 rounded border-outline text-primary focus:ring-primary bg-surface" type="checkbox">
+<span class="text-label-md text-on-surface">Enable Hinglish</span>
+</label><div class="mt-lg px-xs">
+  <div class="rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm"><br></div>
+</div>
+<div class="space-y-md mt-lg">
+  <div class="p-md bg-surface-container rounded-lg border border-outline-variant/30 shadow-sm">
+    <h5 class="text-label-sm font-bold text-primary uppercase tracking-wider mb-xs">Pro Tip</h5>
+    <p class="text-label-sm text-on-surface-variant">Ask Hitesh about 'chai and code' to unlock special Easter eggs!</p>
+  </div>
+  <div class="p-md bg-surface-container rounded-lg border border-outline-variant/30 shadow-sm">
+    <h5 class="text-label-sm font-bold text-primary uppercase tracking-wider mb-xs">Pro Tip</h5>
+    <p class="text-label-sm text-on-surface-variant">Ask Piyush about the latest AI trends to see how he simplifies complex concepts!</p>
+  </div>
+</div></div>
+</div>
+</div>
+<!-- Profile & Bottom Actions -->
+<div class="p-lg bg-surface-container-highest/20 border-t border-outline-variant/30 flex items-center justify-between">
+<div class="flex items-center gap-md">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container">
+<span class="material-symbols-outlined text-[18px]">person</span>
+</div>
+<span class="text-label-md font-bold text-on-surface">My Account</span>
+</div>
+<button class="material-symbols-outlined text-on-surface-variant hover:text-primary transition-colors">settings</button>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 flex flex-col bg-surface relative">
+<!-- Header -->
+<header class="h-16 border-b border-outline-variant/30 flex items-center justify-between px-xl bg-white/50 backdrop-blur-md z-10">
+<div class="flex items-center gap-md">
+<div class="w-2.5 h-2.5 bg-success rounded-full animate-pulse"></div>
+<h2 class="font-headline-md text-headline-md text-on-surface" id="chat-header-name">Chatting with Piyush</h2>
+</div>
+<div class="flex items-center gap-lg">
+<button class="flex items-center gap-xs px-md py-1.5 rounded-full hover:bg-surface-container-high text-on-surface-variant transition-colors" onclick="toggleTheme()">
+<span class="material-symbols-outlined text-[20px]" id="theme-icon">dark_mode</span>
+<span class="text-label-sm">Theme</span>
+</button>
+
+</div>
+</header>
+<!-- Chat Interface -->
+<div class="flex-1 overflow-hidden flex flex-col max-w-4xl mx-auto w-full">
+<!-- Messages Area -->
+<div class="flex-1 overflow-y-auto p-xl space-y-xl no-scrollbar" id="message-area">
+<!-- Bot Message -->
+<div class="flex gap-lg max-w-[85%] group">
+<div class="flex-shrink-0 w-10 h-10 rounded-full bg-hitesh-orange/10 flex items-center justify-center overflow-hidden border border-hitesh-orange/20 shadow-sm">
+<img class="w-full h-full object-cover" id="bot-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDB1nbFC8ntjbHZaob5H0EdgfZoZVpQFs4ODxdH1v065wVgn2osbtNpesJiQ9ZIJfY-HqqUgLnNNDtietiQ8lL0xyYgYy8PeuXpOSjAUOp3YNew99NrO3kTIzNWCV09bEEZzZKtOXgOMdkEjkYUeMgfnc02-rM071KlzRRBCOPmABj5VTCVqsTzCxTw7xFyuCIUGlZCqUqI_jQDbKA7rHuSRbYvv1yAn7d3NoQ8MG-6dW-qWzjsRHs57DuMqmP_Y17MmpWX4wJlmRA">
+</div>
+<div class="space-y-sm">
+<div class="bg-surface-container-low p-lg rounded-2xl rounded-tl-xs shadow-sm border border-outline-variant/10">
+<p class="text-on-surface leading-relaxed">Hanji, to chaliye shuru karte hain! Kya seekhna hai aaj aapko web development mein? Main aaj "Chai aur Code" mode mein hoon, toh bade simple tarike se samjhaunga.</p>
+</div>
+<span class="text-[10px] text-on-surface-variant font-label-sm px-1">10:00 AM</span>
+</div>
+</div>
+<!-- User Message -->
+<div class="flex gap-lg max-w-[85%] self-end flex-row-reverse group">
+<div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed border border-primary-fixed-dim/20 shadow-sm">
+<span class="material-symbols-outlined text-[20px]">person</span>
+</div>
+<div class="space-y-sm text-right">
+<div class="bg-primary text-on-primary p-lg rounded-2xl rounded-tr-xs shadow-md">
+<p class="leading-relaxed">Hello! Can you explain Closures in simple terms? I find it a bit confusing with the scopes and lexical environments.</p>
+</div>
+<span class="text-[10px] text-on-surface-variant font-label-sm px-1">10:02 AM</span>
+</div>
+</div>
+<div class="w-full flex justify-center items-center gap-md py-md" id="switch-indicator">
+<div class="h-px flex-1 bg-gradient-to-r from-transparent to-outline-variant/30"></div>
+<span class="px-md py-xs bg-surface-container-high rounded-full text-[10px] text-on-surface-variant font-label-sm uppercase tracking-widest">Switched to Hitesh Choudhary</span>
+<div class="h-px flex-1 bg-gradient-to-l from-transparent to-outline-variant/30"></div>
+</div>
+<div class="w-full flex justify-center items-center gap-md py-md animate-fade-in">
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent to-outline-variant/30"></div>
+                <span class="px-md py-xs bg-surface-container-high rounded-full text-[10px] text-on-surface-variant font-label-sm uppercase tracking-widest">Switched to Piyush Garg. Systems and Logic mode ON.</span>
+                <div class="h-px flex-1 bg-gradient-to-l from-transparent to-outline-variant/30"></div>
+            </div></div>
+<!-- Input Area Container -->
+<div class="p-xl bg-surface">
+<div class="max-w-3xl mx-auto w-full bg-surface-container-highest/30 rounded-3xl p-md border border-outline-variant/30 shadow-xl">
+<form class="relative" id="chat-form">
+<textarea class="w-full bg-white dark:bg-charcoal py-lg pl-lg pr-20 rounded-2xl border-none focus:ring-2 focus:ring-primary/20 text-on-surface text-body-md shadow-inner min-h-[64px] max-h-48 resize-none no-scrollbar" id="user-input" placeholder="Discuss systems, architecture or full stack..." rows="1"></textarea>
+<button class="absolute right-3 bottom-3 w-12 h-12 bg-primary text-on-primary rounded-xl flex items-center justify-center hover:scale-105 hover:bg-primary-container transition-all active:scale-95 shadow-lg" type="submit">
+<span class="material-symbols-outlined text-headline-md">send</span>
+</button>
+</form>
+<div class="flex gap-sm mt-md overflow-x-auto pb-1 no-scrollbar items-center">
+<span class="text-[10px] text-on-surface-variant font-bold uppercase tracking-wider whitespace-nowrap mr-xs">Suggestions:</span>
+<button class="whitespace-nowrap px-md py-1.5 bg-white/60 hover:bg-primary/5 rounded-full text-label-sm text-on-surface-variant transition-all border border-outline-variant/30 hover:border-primary/30">What is React?</button>
+<button class="whitespace-nowrap px-md py-1.5 bg-white/60 hover:bg-primary/5 rounded-full text-label-sm text-on-surface-variant transition-all border border-outline-variant/30 hover:border-primary/30">Backend with Node.js</button>
+<button class="whitespace-nowrap px-md py-1.5 bg-white/60 hover:bg-primary/5 rounded-full text-label-sm text-on-surface-variant transition-all border border-outline-variant/30 hover:border-primary/30">JS Engine working</button>
+</div>
+</div>
+<p class="text-center text-[10px] text-on-surface-variant mt-md">HPersona can make mistakes. Consider checking important information.</p>
+</div>
+</div>
+</main>
+</div>
+<script>
+        let currentPersona = 'hitesh';
+        const hiteshAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuB3i9QyvCokUzSKkyXlYKNjFECM8mY9xjuCWGljFfpQlSNGYoP1VW7W4RqlTOI0iQ1iEIXUfvk-UOjZqhgYuvzYIO8K59YqRquSMF4d6GBc6NSd8MpdKgkdb_UfOSc5QPs5IFIbeN5jD8g15H_vO2MpTvRDi0UvMMEBxBMVKH145MAvZAsg6_hqcX62aOxaKDLPBfe5xTLkZ68y6sWfI8VpB_sPRgRqpY3v0DYnf9MkKu-VPZbNzRR4Bb3HT71qgnBzgs0MZhQ_nbU";
+        const piyushAvatar = "https://lh3.googleusercontent.com/aida-public/AB6AXuDB1nbFC8ntjbHZaob5H0EdgfZoZVpQFs4ODxdH1v065wVgn2osbtNpesJiQ9ZIJfY-HqqUgLnNNDtietiQ8lL0xyYgYy8PeuXpOSjAUOp3YNew99NrO3kTIzNWCV09bEEZzZKtOXgOMdkEjkYUeMgfnc02-rM071KlzRRBCOPmABj5VTCVqsTzCxTw7xFyuCIUGlZCqUqI_jQDbKA7rHuSRbYvv1yAn7d3NoQ8MG-6dW-qWzjsRHs57DuMqmP_Y17MmpWX4wJlmRA";
+
+        function toggleTheme() {
+            const html = document.documentElement;
+            const icon = document.getElementById('theme-icon');
+            if (html.classList.contains('dark')) {
+                html.classList.remove('dark');
+                icon.textContent = 'dark_mode';
+            } else {
+                html.classList.add('dark');
+                icon.textContent = 'light_mode';
+            }
+        }
+
+        function selectPersona(persona) {
+            currentPersona = persona;
+            const hiteshCard = document.getElementById('persona-hitesh');
+            const piyushCard = document.getElementById('persona-piyush');
+            const chatHeader = document.getElementById('chat-header-name');
+            const botAvatarEl = document.getElementById('bot-avatar');
+            const input = document.getElementById('user-input');
+
+            if (persona === 'hitesh') {
+                hiteshCard.className = "persona-card-active cursor-pointer group p-md rounded-xl border-2 border-primary shadow-sm hover:shadow-md transition-all flex items-center gap-md bg-white dark:bg-charcoal";
+                piyushCard.className = "cursor-pointer group p-md rounded-xl border-2 border-transparent bg-surface-container hover:bg-surface-container-high transition-all flex items-center gap-md";
+                chatHeader.textContent = 'Chatting with Hitesh';
+                botAvatarEl.src = hiteshAvatar;
+                input.placeholder = 'Puchiye apna sawaal...';
+                addSystemMessage("Switched to Hitesh Choudhary. JavaScript aur Chai mode ON.");
+            } else {
+                piyushCard.className = "persona-card-active cursor-pointer group p-md rounded-xl border-2 border-primary shadow-sm hover:shadow-md transition-all flex items-center gap-md bg-white dark:bg-charcoal";
+                hiteshCard.className = "cursor-pointer group p-md rounded-xl border-2 border-transparent bg-surface-container hover:bg-surface-container-high transition-all flex items-center gap-md";
+                chatHeader.textContent = 'Chatting with Piyush';
+                botAvatarEl.src = piyushAvatar;
+                input.placeholder = 'Discuss systems, architecture or full stack...';
+                addSystemMessage("Switched to Piyush Garg. Systems and Logic mode ON.");
+            }
+        }
+
+        function addSystemMessage(text) {
+            const area = document.getElementById('message-area');
+            const msg = document.createElement('div');
+            msg.className = 'w-full flex justify-center items-center gap-md py-md animate-fade-in';
+            msg.innerHTML = `
+                <div class="h-px flex-1 bg-gradient-to-r from-transparent to-outline-variant/30"></div>
+                <span class="px-md py-xs bg-surface-container-high rounded-full text-[10px] text-on-surface-variant font-label-sm uppercase tracking-widest">${text}</span>
+                <div class="h-px flex-1 bg-gradient-to-l from-transparent to-outline-variant/30"></div>
+            `;
+            area.appendChild(msg);
+            area.scrollTop = area.scrollHeight;
+        }
+
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        chatForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = userInput.value.trim();
+            if (!text) return;
+
+            const area = document.getElementById('message-area');
+
+            // User Message
+            const userMsg = document.createElement('div');
+            userMsg.className = 'flex gap-lg max-w-[85%] self-end flex-row-reverse group animate-fade-in';
+            userMsg.innerHTML = `
+                <div class="flex-shrink-0 w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed border border-primary-fixed-dim/20 shadow-sm">
+                    <span class="material-symbols-outlined text-[20px]">person</span>
+                </div>
+                <div class="space-y-sm text-right">
+                    <div class="bg-primary text-on-primary p-lg rounded-2xl rounded-tr-xs shadow-md">
+                        <p class="leading-relaxed">${text}</p>
+                    </div>
+                    <span class="text-[10px] text-on-surface-variant font-label-sm px-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                </div>
+            `;
+            area.appendChild(userMsg);
+            userInput.value = '';
+            userInput.style.height = 'auto';
+            area.scrollTop = area.scrollHeight;
+
+            // Mock Bot Reply
+            setTimeout(() => {
+                const botMsg = document.createElement('div');
+                const accent = currentPersona === 'hitesh' ? 'hitesh-orange' : 'piyush-teal';
+                const avatar = currentPersona === 'hitesh' ? hiteshAvatar : piyushAvatar;
+                const response = currentPersona === 'hitesh' 
+                    ? "Bilkul! Closures kafi simple hai jab hum usse environment ke context mein dekhte hain. Chai piyo aur samjho: function + uska lexical environment. Jahan woh paida hua hai, wahan ki memories saath rakhta hai."
+                    : "Closures are a fundamental concept in JavaScript. They allow functions to have 'private variables'. Essentially, a function remembers the environment in which it was created.";
+
+                botMsg.className = 'flex gap-lg max-w-[85%] group animate-fade-in';
+                botMsg.innerHTML = `
+                    <div class="flex-shrink-0 w-10 h-10 rounded-full bg-${accent}/10 flex items-center justify-center overflow-hidden border border-${accent}/20 shadow-sm">
+                        <img class="w-full h-full object-cover" src="${avatar}"/>
+                    </div>
+                    <div class="space-y-sm">
+                        <div class="bg-surface-container-low p-lg rounded-2xl rounded-tl-xs shadow-sm border border-outline-variant/10">
+                            <p class="text-on-surface leading-relaxed">${response}</p>
+                        </div>
+                        <span class="text-[10px] text-on-surface-variant font-label-sm px-1">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+                    </div>
+                `;
+                area.appendChild(botMsg);
+                area.scrollTop = area.scrollHeight;
+            }, 1000);
+        });
+    </script>
+
+
+
+
+</body></html>
