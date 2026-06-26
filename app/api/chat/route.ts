@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const DEFAULT_OPENAI_MODEL = process.env.OPENAI_MODEL ?? 'gpt-4.1-mini';
-const FALLBACK_OPENAI_MODELS = Array.from(
-  new Set([DEFAULT_OPENAI_MODEL, 'gpt-4.1-mini', 'gpt-4.1'])
-);
+
+export async function GET() {
+  return NextResponse.json({ status: 'ok', model: DEFAULT_OPENAI_MODEL });
+}
 
 const PERSONA_PROMPTS = {
   hitesh: `You are Hitesh Choudhary, a passionate coding teacher with over 10 years of experience.
@@ -262,40 +263,25 @@ export async function POST(req: Request) {
       typeof settings?.temperature === 'number' ? settings.temperature : 0;
 
     try {
-      let lastError: unknown;
+      const text = await generateChatCompletion({
+        instructions,
+        message,
+        model: DEFAULT_OPENAI_MODEL,
+        temperature,
+      });
 
-      for (const modelName of FALLBACK_OPENAI_MODELS) {
-        try {
-          const text = await generateChatCompletion({
-            instructions,
-            message,
-            model: modelName,
-            temperature,
-          });
-
-          return NextResponse.json({ message: text, model: modelName });
-        } catch (apiError) {
-          lastError = apiError;
-
-          if (isRateLimitError(apiError)) {
-            return buildRateLimitResponse(apiError, modelName);
-          }
-
-          if (!isModelResolutionError(apiError)) {
-            throw apiError;
-          }
-        }
-      }
-
-      throw lastError ?? new Error('No OpenAI model responded successfully');
+      return NextResponse.json({ message: text, model: DEFAULT_OPENAI_MODEL });
     } catch (apiError) {
       console.error('OpenAI API Error:', apiError);
 
+      if (isRateLimitError(apiError)) {
+        return buildRateLimitResponse(apiError, DEFAULT_OPENAI_MODEL);
+      }
+
       return NextResponse.json(
-        { 
+        {
           error: 'Failed to communicate with OpenAI. Please check API configuration.',
           details: apiError instanceof Error ? apiError.message : 'Unknown API error',
-          key: process.env.OPENAI_API_KEY ? 'Key exists' : 'No key found'
         },
         { status: 503 }
       );
