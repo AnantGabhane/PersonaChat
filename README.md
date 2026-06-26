@@ -16,6 +16,14 @@ https://ai-persona.anantgabhane.com/
 - **Dark mode** — warm dark theme for comfortable night-time learning
 - **Markdown responses** — code blocks, headers, lists, and bold text render properly in chat
 
+## UI Screenshots
+Light Mode:
+<img width="1733" height="1000" alt="image" src="https://github.com/user-attachments/assets/5ba6bff7-234f-4932-9e0e-ceccbf202eac" />
+
+Dark Mode
+<img width="1733" height="1000" alt="image" src="https://github.com/user-attachments/assets/1317df3d-8a0d-438a-b293-db1d267aaded" />
+
+
 ## Setup
 
 ### Prerequisites
